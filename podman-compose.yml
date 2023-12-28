@@ -1,0 +1,23 @@
+---
+version: "3"
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    secrets:
+      - openvpn_user
+      - openvpn_password
+    environment:
+      - VPN_SERVICE_PROVIDER=protonvpn
+      - OPENVPN_USER={{ openvpn_user }}
+      - OPENVPN_PASSWORD={{ openvpn_password }}
+      - SERVER_COUNTRIES=Netherlands
+ 
+secrets:
+  openvpn_user:
+    external: true
+  openvpn_password:
+    external: true

@@ -1,23 +1,78 @@
 ---
 version: "3"
 services:
+  # .env:
+  #   - OPENVPN_USER
+  #   - OPENVPN_PASSWORD
   gluetun:
     image: qmcgaw/gluetun
+    container_name: gluetun
     cap_add:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
-    secrets:
-      - openvpn_user
-      - openvpn_password
+    ports:
+      - 8080:8080     # qbittorrent
+      - 9091:9091     # transmission
+      - 9696:9696     # prowlar
+
+      - 8388:8388/tcp # Shadowsocks
+      - 8388:8388/udp # Shadowsocks
+      - 8888:8888/tcp # HTTP proxy
     environment:
       - VPN_SERVICE_PROVIDER=protonvpn
-      - OPENVPN_USER={{ openvpn_user }}
-      - OPENVPN_PASSWORD={{ openvpn_password }}
+      - OPENVPN_USER=${OPENVPN_USER}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
       - SERVER_COUNTRIES=Netherlands
- 
-secrets:
-  openvpn_user:
-    external: true
-  openvpn_password:
-    external: true
+      - UPDATER_PERIOD="24h"
+    volumes:
+      - /appdata/gluetun:/gluetun
+      - /data:/data
+    restart: always
+
+  # port 8080
+  qbittorrent:
+    image: ghcr.io/hotio/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+      - WEBUI_PORT=8080/tcp
+    volumes:
+      - /appdata/qbittorrent:/config
+      - /data:/data
+    restart: always
+
+   # ports:
+   #   - 9091:9091
+   #   - 51413:51413
+   #   - 51413:51413/udp
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+      - USER=${TRANSMISSION_USER}
+      - PASS=${TRANSMISSION_PASSWORD}
+    volumes:
+      - /appdata/transmission:/config
+      - /data:/data
+    restart: always
+
+  # port 9696
+  prowlarr:
+    container_name: prowlarr
+    image: ghcr.io/hotio/prowlarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /appdata/prowlarr:/config

@@ -12,13 +12,14 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
-      - 8080:8080     # qbittorrent
-      - 9091:9091     # transmission
-      - 9696:9696     # prowlar
+      - 8096:8096 # jellyfin
+      - 8989:8989 # sonarr
+      - 9091:9091 # transmission
+      - 9696:9696 # prowlar
 
-      - 8388:8388/tcp # Shadowsocks
-      - 8388:8388/udp # Shadowsocks
-      - 8888:8888/tcp # HTTP proxy
+      # - 8388:8388/tcp # Shadowsocks
+      # - 8388:8388/udp # Shadowsocks
+      # - 8888:8888/tcp # HTTP proxy
     environment:
       - VPN_SERVICE_PROVIDER=protonvpn
       - OPENVPN_USER=${OPENVPN_USER}
@@ -28,27 +29,14 @@ services:
     volumes:
       - /appdata/gluetun:/gluetun
       - /data:/data
-    restart: always
 
-  # port 8080
-  qbittorrent:
-    image: ghcr.io/hotio/qbittorrent:latest
-    container_name: qbittorrent
-    network_mode: "service:gluetun"
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Amsterdam
-      - WEBUI_PORT=8080/tcp
-    volumes:
-      - /appdata/qbittorrent:/config
-      - /data:/data
-    restart: always
-
-   # ports:
-   #   - 9091:9091
-   #   - 51413:51413
-   #   - 51413:51413/udp
+    # ports:
+    #   - 9091:9091
+    #   - 51413:51413
+    #   - 51413:51413/udp
+    # .env:
+    #   - TRANSMISSION_USER
+    #   - TRANSMISSION_PASSWORD
   transmission:
     image: lscr.io/linuxserver/transmission:latest
     container_name: transmission
@@ -62,9 +50,9 @@ services:
     volumes:
       - /appdata/transmission:/config
       - /data:/data
-    restart: always
 
-  # port 9696
+  # ports:
+  #   - 9696:9696
   prowlarr:
     container_name: prowlarr
     image: ghcr.io/hotio/prowlarr
@@ -76,3 +64,33 @@ services:
       - TZ=Europe/Amsterdam
     volumes:
       - /appdata/prowlarr:/config
+
+  # ports:
+  #   - "8989:8989"
+  sonarr:
+    container_name: sonarr
+    image: ghcr.io/hotio/sonarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /appdata/sonarr:/config
+      - /data:/data
+
+  #  ports:
+  #    - "8096:8096"
+  jellyfin:
+    container_name: jellyfin
+    image: ghcr.io/hotio/jellyfin
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /appdata/jellyfin:/config
+      - /data:/data

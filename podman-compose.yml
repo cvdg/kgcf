@@ -12,7 +12,10 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
+      - 7878:7878 # radarr
       - 8096:8096 # jellyfin
+      - 8686:8686 # lidarr
+      - 8787:8787 # readarr
       - 8989:8989 # sonarr
       - 9091:9091 # transmission
       - 9696:9696 # prowlar
@@ -78,6 +81,51 @@ services:
       - TZ=Europe/Amsterdam
     volumes:
       - /appdata/sonarr:/config
+      - /data:/data
+
+  # ports:
+  #   - "7878:7878"
+  radarr:
+    container_name: radarr
+    image: ghcr.io/hotio/radarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Etc/UTC
+    volumes:
+      - /appdata/radarr:/config
+      - /data:/data
+
+  # ports:
+  #   - "8787:8787"
+  readarr:
+    container_name: readarr
+    image: ghcr.io/hotio/readarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /appdata/readarr:/config
+      - /data:/data
+
+  # ports:
+  #   - "8686:8686"
+  lidarr:
+    container_name: lidarr
+    image: ghcr.io/hotio/lidarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /appdata/lidarr:/config
       - /data:/data
 
   #  ports:

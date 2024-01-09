@@ -32,6 +32,7 @@ services:
     volumes:
       - /appdata/gluetun:/gluetun
       - /data:/data
+    restart: unless-stopped
 
     # ports:
     #   - 9091:9091
@@ -53,6 +54,7 @@ services:
     volumes:
       - /appdata/transmission:/config
       - /data:/data
+    restart: unless-stopped
 
   # ports:
   #   - 9696:9696
@@ -67,6 +69,7 @@ services:
       - TZ=Europe/Amsterdam
     volumes:
       - /appdata/prowlarr:/config
+    restart: unless-stopped
 
   # ports:
   #   - "8989:8989"
@@ -82,6 +85,7 @@ services:
     volumes:
       - /appdata/sonarr:/config
       - /data:/data
+    restart: unless-stopped
 
   # ports:
   #   - "7878:7878"
@@ -97,6 +101,7 @@ services:
     volumes:
       - /appdata/radarr:/config
       - /data:/data
+    restart: unless-stopped
 
   # ports:
   #   - "8787:8787"
@@ -112,6 +117,7 @@ services:
     volumes:
       - /appdata/readarr:/config
       - /data:/data
+    restart: unless-stopped
 
   # ports:
   #   - "8686:8686"
@@ -127,6 +133,7 @@ services:
     volumes:
       - /appdata/lidarr:/config
       - /data:/data
+    restart: unless-stopped
 
   #  ports:
   #    - "8096:8096"
@@ -142,3 +149,16 @@ services:
     volumes:
       - /appdata/jellyfin:/config
       - /data:/data
+    restart: unless-stopped
+
+  homarr:
+    container_name: homarr
+    image: ghcr.io/ajnart/homarr:latest
+    volumes:
+      # - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - /appdata/homarr/configs:/app/data/configs
+      - /appdata/homarr/icons:/app/public/icons
+      - /appdata/homarr/data:/data
+    ports:
+      - '7575:7575'
+    restart: unless-stopped

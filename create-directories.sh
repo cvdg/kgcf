@@ -11,3 +11,8 @@ sudo mkdir -pv /data/{media,torrent}/{audio,book,movie,tv}
 
 sudo chown -Rv cees:cees /appdata /data
 podman unshare chown -Rv cees:cees /appdata /data
+
+# homarr
+sudo mkdir -pv /appdata/homarr/{configs,icons,data}
+sudo chown -Rv cees:cees /appdata/homarr
+podman unshare chown -Rv cees:cees /appdata/homarr

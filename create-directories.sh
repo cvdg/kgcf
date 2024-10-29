@@ -1,18 +1,21 @@
 #!/bin/bash
+#
+# /appdata: SSD
+# /data:    HDD
+#
 
 set -ex
 
-# App data on SSD
-sudo mkdir -pv /appdata/{gluetun,jellyfin,lidarr,prowlarr,radarr,readarr,sonarr,transmission}
+APPDATA_DIR="/appdata"
+DATA_DIR="/data"
 
-# Media data on HD
-sudo mkdir -pv /data/{media,torrent}/{audio,book,movie,tv}
+sudo mkdir -pv ${APPDATA_DIR}/{gluetun,jellyfin,lidarr,prowlarr,radarr,readarr,sonarr,transmission}
+
+sudo mkdir -pv ${APPDATA_DIR}/homarr/{configs,icons,data}
 
 
-sudo chown -Rv cees:cees /appdata /data
-podman unshare chown -Rv cees:cees /appdata /data
+sudo mkdir -pv ${DATA_DIR}/{media,torrent}/{audio,book,movie,tv}
 
-# homarr
-sudo mkdir -pv /appdata/homarr/{configs,icons,data}
-sudo chown -Rv cees:cees /appdata/homarr
-podman unshare chown -Rv cees:cees /appdata/homarr
+sudo chown -Rv cees:cees ${APPDATA_DIR}
+sudo chown -Rv cees:cees ${DATA_DIR}
+

@@ -1,16 +1,14 @@
 ---
-version: "3"
 services:
-  # .env:
-  #   - OPENVPN_USER
-  #   - OPENVPN_PASSWORD
-  gluetun:
-    image: qmcgaw/gluetun
-    container_name: gluetun
+  wireguard:
+    image: linuxserver/wireguard
+    container_name: wireguard
     cap_add:
       - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
+    networks:
+      - wg0
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
     ports:
       - 7878:7878 # radarr
       - 8096:8096 # jellyfin
@@ -19,19 +17,15 @@ services:
       - 8989:8989 # sonarr
       - 9091:9091 # transmission
       - 9696:9696 # prowlar
-
       # - 8388:8388/tcp # Shadowsocks
       # - 8388:8388/udp # Shadowsocks
       # - 8888:8888/tcp # HTTP proxy
     environment:
-      - VPN_SERVICE_PROVIDER=protonvpn
-      - OPENVPN_USER=${OPENVPN_USER}
-      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
-      - SERVER_COUNTRIES=Netherlands
-      - UPDATER_PERIOD="24h"
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
     volumes:
-      - /appdata/gluetun:/gluetun
-      - /data:/data
+      - /appdata/wireguard/config:/config
     restart: unless-stopped
 
     # ports:
@@ -42,15 +36,13 @@ services:
     #   - TRANSMISSION_USER
     #   - TRANSMISSION_PASSWORD
   transmission:
-    image: lscr.io/linuxserver/transmission:latest
+    image: linuxserver/transmission
     container_name: transmission
-    network_mode: "service:gluetun"
+    network_mode: "service:wireguard"
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Amsterdam
-      - USER=${TRANSMISSION_USER}
-      - PASS=${TRANSMISSION_PASSWORD}
     volumes:
       - /appdata/transmission:/config
       - /data:/data
@@ -60,8 +52,8 @@ services:
   #   - 9696:9696
   prowlarr:
     container_name: prowlarr
-    image: ghcr.io/hotio/prowlarr
-    network_mode: "service:gluetun"
+    image: linuxserver/prowlarr
+    network_mode: "service:wireguard"
     environment:
       - PUID=1000
       - PGID=1000
@@ -75,8 +67,8 @@ services:
   #   - "8989:8989"
   sonarr:
     container_name: sonarr
-    image: ghcr.io/hotio/sonarr
-    network_mode: "service:gluetun"
+    image: linuxserver/sonarr
+    network_mode: "service:wireguard"
     environment:
       - PUID=1000
       - PGID=1000
@@ -91,8 +83,8 @@ services:
   #   - "7878:7878"
   radarr:
     container_name: radarr
-    image: ghcr.io/hotio/radarr
-    network_mode: "service:gluetun"
+    image: linuxserver/radarr
+    network_mode: "service:wireguard"
     environment:
       - PUID=1000
       - PGID=1000
@@ -107,8 +99,8 @@ services:
   #   - "8787:8787"
   readarr:
     container_name: readarr
-    image: ghcr.io/hotio/readarr
-    network_mode: "service:gluetun"
+    image: linuxserver/readarr:develop
+    network_mode: "service:wireguard"
     environment:
       - PUID=1000
       - PGID=1000
@@ -123,8 +115,8 @@ services:
   #   - "8686:8686"
   lidarr:
     container_name: lidarr
-    image: ghcr.io/hotio/lidarr
-    network_mode: "service:gluetun"
+    image: linuxserver/lidarr
+    network_mode: "service:wireguard"
     environment:
       - PUID=1000
       - PGID=1000
@@ -139,8 +131,8 @@ services:
   #    - "8096:8096"
   jellyfin:
     container_name: jellyfin
-    image: ghcr.io/hotio/jellyfin
-    network_mode: "service:gluetun"
+    image: linuxserver/jellyfin
+    network_mode: "service:wireguard"
     environment:
       - PUID=1000
       - PGID=1000
@@ -153,12 +145,17 @@ services:
 
   homarr:
     container_name: homarr
-    image: ghcr.io/ajnart/homarr:latest
+    image: homarr/homarr
     volumes:
-      # - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
       - /appdata/homarr/configs:/app/data/configs
       - /appdata/homarr/icons:/app/public/icons
       - /appdata/homarr/data:/data
     ports:
       - '7575:7575'
     restart: unless-stopped
+
+networks:
+  wg0:
+    name: wg0
+    driver: bridge

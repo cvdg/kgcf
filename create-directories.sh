@@ -9,7 +9,7 @@ set -ex
 APPDATA_DIR="/appdata"
 DATA_DIR="/data"
 
-sudo mkdir -pv ${APPDATA_DIR}/{gluetun,jellyfin,lidarr,prowlarr,radarr,readarr,sonarr,transmission}
+sudo mkdir -pv ${APPDATA_DIR}/{gluetun,jellyfin,lidarr,prowlarr,radarr,readarr,sonarr,transmission,qbittorrent}
 
 sudo mkdir -pv ${APPDATA_DIR}/homarr/{configs,icons,data}
 

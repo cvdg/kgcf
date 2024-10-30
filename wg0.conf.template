@@ -1,0 +1,16 @@
+[Interface]
+# Key for deb01
+# Bouncing = 23
+# NetShield = 2
+# Moderate NAT = off
+# NAT-PMP (Port Forwarding) = on
+# VPN Accelerator = on
+PrivateKey = ********************************************
+Address = 10.2.0.2/32
+DNS = 10.2.0.1
+
+[Peer]
+# NL#441
+PublicKey = ********************************************
+AllowedIPs = 0.0.0.0/0
+Endpoint = 103.69.224.5:51820

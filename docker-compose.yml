@@ -1,51 +1,55 @@
 ---
 services:
-  wireguard:
-    image: linuxserver/wireguard
-    container_name: wireguard
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
     cap_add:
       - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+      - VPN_SERVICE_PROVIDER=custom
+      - VPN_TYPE=wireguard
     networks:
       - wg0
-    sysctls:
-      - net.ipv4.conf.all.src_valid_mark=1
     ports:
-      - 7878:7878 # radarr
-      - 8096:8096 # jellyfin
-      - 8686:8686 # lidarr
-      - 8787:8787 # readarr
-      - 8989:8989 # sonarr
-      - 9091:9091 # transmission
-      - 9696:9696 # prowlar
+      - 9080:9080     # qbittorrent
+      - 6881:6881     # qbittorrent
+      - 6881:6881/udp # qbittorrenr
+      - 7878:7878     # radarr
+      - 8096:8096     # jellyfin
+      - 8686:8686     # lidarr
+      - 8787:8787     # readarr
+      - 8989:8989     # sonarr
+      - 9091:9091     # transmission
+      - 9696:9696     # prowlar
       # - 8388:8388/tcp # Shadowsocks
       # - 8388:8388/udp # Shadowsocks
       # - 8888:8888/tcp # HTTP proxy
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Amsterdam
     volumes:
-      - /appdata/wireguard/config:/config
+      - ./wg0.conf:/gluetun/wireguard/wg0.conf
     restart: unless-stopped
 
-    # ports:
-    #   - 9091:9091
-    #   - 51413:51413
-    #   - 51413:51413/udp
-    # .env:
-    #   - TRANSMISSION_USER
-    #   - TRANSMISSION_PASSWORD
-  transmission:
-    image: linuxserver/transmission
-    container_name: transmission
-    network_mode: "service:wireguard"
+  #  ports:
+  #    - 9080:9080
+  #    - 6881:6881
+  #    - 6881:6881/udp
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Amsterdam
+      - WEBUI_PORT=9080
+      - TORRENTING_PORT=6881
     volumes:
-      - /appdata/transmission:/config
-      - /data:/data
+      - /appdata/qbittorrent:/config
+      - /data/torrent:/data/torrent
     restart: unless-stopped
 
   # ports:
@@ -53,7 +57,7 @@ services:
   prowlarr:
     container_name: prowlarr
     image: linuxserver/prowlarr
-    network_mode: "service:wireguard"
+    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -68,7 +72,7 @@ services:
   sonarr:
     container_name: sonarr
     image: linuxserver/sonarr
-    network_mode: "service:wireguard"
+    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -84,12 +88,12 @@ services:
   radarr:
     container_name: radarr
     image: linuxserver/radarr
-    network_mode: "service:wireguard"
+    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
       - UMASK=002
-      - TZ=Etc/UTC
+      - TZ=Europe/Amsterdam
     volumes:
       - /appdata/radarr:/config
       - /data:/data
@@ -100,7 +104,7 @@ services:
   readarr:
     container_name: readarr
     image: linuxserver/readarr:develop
-    network_mode: "service:wireguard"
+    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -116,7 +120,7 @@ services:
   lidarr:
     container_name: lidarr
     image: linuxserver/lidarr
-    network_mode: "service:wireguard"
+    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -132,7 +136,7 @@ services:
   jellyfin:
     container_name: jellyfin
     image: linuxserver/jellyfin
-    network_mode: "service:wireguard"
+    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -140,19 +144,24 @@ services:
       - TZ=Europe/Amsterdam
     volumes:
       - /appdata/jellyfin:/config
-      - /data:/data
+      - /data/media:/data/media
     restart: unless-stopped
 
   homarr:
     container_name: homarr
-    image: homarr/homarr
+    image: ghcr.io/ajnart/homarr:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Amsterdam
+    ports:
+      - "7575:7575"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
       - /appdata/homarr/configs:/app/data/configs
       - /appdata/homarr/icons:/app/public/icons
       - /appdata/homarr/data:/data
-    ports:
-      - '7575:7575'
     restart: unless-stopped
 
 networks:

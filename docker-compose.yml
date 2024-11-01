@@ -163,6 +163,20 @@ services:
       - /appdata/homarr/data:/data
     restart: unless-stopped
 
+  rsync:
+    container_name: rsync
+    image: cvdg/rsync:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Amsterdam
+    ports:
+      - "873:873"
+    volumes:
+      - /data/media:/data/media
+    restart: unless-stopped
+
 networks:
   wg0:
     name: wg0

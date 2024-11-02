@@ -163,16 +163,18 @@ services:
       - /appdata/homarr/data:/data
     restart: unless-stopped
 
-  rsync:
-    container_name: rsync
-    image: cvdg/rsync:latest
+  kgcf-rsync:
+    container_name: kgcf-rsync
+    image: cvdg/kgcf-rsync
+    build:
+      context: rsync
     environment:
       - PUID=1000
       - PGID=1000
       - UMASK=002
       - TZ=Europe/Amsterdam
     ports:
-      - "873:873"
+      - "9873:9873"
     volumes:
       - /data/media:/data/media
     restart: unless-stopped

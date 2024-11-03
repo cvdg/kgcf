@@ -2,3 +2,27 @@
 .env
 .venv/
 wg0.conf
+
+# servarr
+logs/
+log/
+cache/
+.cache/
+*.db
+*.db-shm
+*.db-wal
+*.pid
+MediaCover/
+Sentry/
+asp/
+config.xml
+.Trash-*/
+
+data/torrent/audio/*
+data/torrent/book/*
+data/torrent/movie/*
+data/torrent/tv/*
+data/media/audio/*
+data/media/book/*
+data/media/movie/*
+data/media/tv/*

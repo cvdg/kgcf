@@ -18,11 +18,15 @@ asp/
 config.xml
 .Trash-*/
 
-data/torrent/audio/*
-data/torrent/book/*
-data/torrent/movie/*
-data/torrent/tv/*
 data/media/audio/*
 data/media/book/*
 data/media/movie/*
 data/media/tv/*
+data/torrent/audio/*
+data/torrent/book/*
+data/torrent/movie/*
+data/torrent/tv/*
+data/usenet/audio/*
+data/usenet/book/*
+data/usenet/movie/*
+data/usenet/tv/*

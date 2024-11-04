@@ -1,62 +1,23 @@
 ---
 services:
-  gluetun:
-    image: qmcgaw/gluetun
-    container_name: gluetun
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
     environment:
       - PUID=1000
       - PGID=1000
+      - UMASK=002
       - TZ=Europe/Amsterdam
-      - VPN_SERVICE_PROVIDER=custom
-      - VPN_TYPE=wireguard
-    networks:
-      - wg0
+    volumes:
+      - ./appdata/sabnzbd:/config
+      - ./data/usenet:/data/usenet
     ports:
-      - 9080:9080     # qbittorrent
-      - 6881:6881     # qbittorrent
-      - 6881:6881/udp # qbittorrenr
-      - 7878:7878     # radarr
-      - 8096:8096     # jellyfin
-      - 8686:8686     # lidarr
-      - 8787:8787     # readarr
-      - 8989:8989     # sonarr
-      - 9696:9696     # prowlar
-      # - 8388:8388/tcp # Shadowsocks
-      # - 8388:8388/udp # Shadowsocks
-      # - 8888:8888/tcp # HTTP proxy
-    volumes:
-      - ./wg0.conf:/gluetun/wireguard/wg0.conf
+      - 8080:8080
     restart: unless-stopped
 
-  #  ports:
-  #    - 9080:9080
-  #    - 6881:6881
-  #    - 6881:6881/udp
-  qbittorrent:
-    image: linuxserver/qbittorrent:latest
-    container_name: qbittorrent
-    network_mode: "service:gluetun"
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Amsterdam
-      - WEBUI_PORT=9080
-      - TORRENTING_PORT=6881
-    volumes:
-      - ./appdata/qbittorrent:/config
-      - ./data/torrent:/data/torrent
-    restart: unless-stopped
-
-  # ports:
-  #   - 9696:9696
   prowlarr:
     container_name: prowlarr
     image: linuxserver/prowlarr
-    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -64,14 +25,13 @@ services:
       - TZ=Europe/Amsterdam
     volumes:
       - ./appdata/prowlarr:/config
+    ports:
+      - 9696:9696
     restart: unless-stopped
 
-  # ports:
-  #   - "8989:8989"
   sonarr:
     container_name: sonarr
     image: linuxserver/sonarr
-    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -80,14 +40,13 @@ services:
     volumes:
       - ./appdata/sonarr:/config
       - ./data:/data
+    ports:
+      - "8989:8989"
     restart: unless-stopped
 
-  # ports:
-  #   - "7878:7878"
   radarr:
     container_name: radarr
     image: linuxserver/radarr
-    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -96,14 +55,13 @@ services:
     volumes:
       - ./appdata/radarr:/config
       - ./data:/data
+    ports:
+      - "7878:7878"
     restart: unless-stopped
 
-  # ports:
-  #   - "8787:8787"
   readarr:
     container_name: readarr
     image: linuxserver/readarr:develop
-    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -112,14 +70,13 @@ services:
     volumes:
       - ./appdata/readarr:/config
       - ./data:/data
+    ports:
+      - "8787:8787"
     restart: unless-stopped
 
-  # ports:
-  #   - "8686:8686"
   lidarr:
     container_name: lidarr
     image: linuxserver/lidarr
-    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -128,14 +85,13 @@ services:
     volumes:
       - ./appdata/lidarr:/config
       - ./data:/data
+    ports:
+      - "8686:8686"
     restart: unless-stopped
 
-  #  ports:
-  #    - "8096:8096"
   jellyfin:
     container_name: jellyfin
     image: linuxserver/jellyfin
-    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -144,6 +100,8 @@ services:
     volumes:
       - ./appdata/jellyfin:/config
       - ./data/media:/data/media
+    ports:
+      - "8096:8096"
     restart: unless-stopped
 
   homarr:
@@ -178,8 +136,3 @@ services:
     volumes:
       - ./data/media:/data/media
     restart: unless-stopped
-
-networks:
-  wg0:
-    name: wg0
-    driver: bridge
